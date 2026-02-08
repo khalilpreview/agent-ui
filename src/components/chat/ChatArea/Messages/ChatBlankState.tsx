@@ -5,11 +5,12 @@ import { motion, Variants } from 'framer-motion'
 import Icon from '@/components/ui/icon'
 import { IconType } from '@/components/ui/icon/types'
 import React, { useState } from 'react'
+import { BRAND } from '@/lib/brand'
 
 const EXTERNAL_LINKS = {
-  documentation: 'https://agno.link/agent-ui',
-  agenOS: 'https://os.agno.com',
-  agno: 'https://agno.com'
+  documentation: BRAND.docsUrl,
+  agenOS: BRAND.centerUrl,
+  gnosis: BRAND.url
 }
 
 const TECH_ICONS = [
@@ -109,29 +110,30 @@ const ChatBlankState = () => {
       className="flex flex-col items-center text-center font-geist"
       aria-label="Welcome message"
     >
-      <div className="flex max-w-3xl flex-col gap-y-8">
+      <div className="flex max-w-4xl flex-col gap-y-8">
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-3xl font-[600] tracking-tight"
         >
-          <div className="flex items-center justify-center gap-x-2 whitespace-nowrap font-medium">
-            <span className="flex items-center font-[600]">
-              This is an open-source
+          <div className="flex flex-wrap items-center justify-center gap-x-2 font-medium">
+            <span className="flex items-center font-[600]">This is an</span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.25em] text-white/70">
+              Open Source
             </span>
             <span className="inline-flex translate-y-[10px] scale-125 items-center transition-transform duration-200 hover:rotate-6">
               <Link
-                href={EXTERNAL_LINKS.agno}
+                href={EXTERNAL_LINKS.gnosis}
                 target="_blank"
                 rel="noopener"
                 className="cursor-pointer"
               >
-                <Icon type="agno-tag" size="default" />
+                <Icon type="gnosis-tag" size="default" />
               </Link>
             </span>
             <span className="flex items-center font-[600]">
-              Agent UI, built with
+              {BRAND.name}, built with
             </span>
             <span className="inline-flex translate-y-[5px] scale-125 items-center">
               <div className="relative ml-2 h-[40px] w-[90px]">
@@ -172,20 +174,55 @@ const ChatBlankState = () => {
               </div>
             </span>
           </div>
-          <p>For the full experience, visit the AgentOS</p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            For the full experience, visit {BRAND.name} Center and connect to your AgentOS fleet.
+          </p>
         </motion.h1>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="grid gap-4 md:grid-cols-3"
+        >
+          {[
+            {
+              title: 'AgentOS Status',
+              detail: 'Connect in the sidebar to load agents and sessions.'
+            },
+            {
+              title: 'Auth Header',
+              detail: 'Token badge confirms if Authorization is sent.'
+            },
+            {
+              title: 'Ports Registry',
+              detail: 'See /agno/PORTS.md for UI and API port maps.'
+            }
+          ].map((card) => (
+            <div
+              key={card.title}
+              className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
+            >
+              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                {card.title}
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {card.detail}
+              </p>
+            </div>
+          ))}
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="flex justify-center gap-4"
+          className="flex flex-wrap justify-center gap-4"
         >
           <ActionButton
             href={EXTERNAL_LINKS.documentation}
             variant="primary"
             text="GO TO DOCS"
           />
-          <ActionButton href={EXTERNAL_LINKS.agenOS} text="VISIT AGENTOS" />
+          <ActionButton href={EXTERNAL_LINKS.agenOS} text={`VISIT ${BRAND.name.toUpperCase()}`} />
         </motion.div>
       </div>
     </section>

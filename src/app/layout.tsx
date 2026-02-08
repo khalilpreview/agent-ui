@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { DM_Mono, Geist } from 'next/font/google'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Toaster } from '@/components/ui/sonner'
+import { BRAND } from '@/lib/brand'
 import './globals.css'
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -16,9 +17,8 @@ const dmMono = DM_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Agent UI',
-  description:
-    'A modern chat interface for AI agents built with Next.js, Tailwind CSS, and TypeScript. This template provides a ready-to-use UI for interacting with Agno agents.'
+  title: BRAND.name,
+  description: `${BRAND.tagline} This template provides a ready-to-use UI for interacting with ${BRAND.name} agents.`
 }
 
 export default function RootLayout({

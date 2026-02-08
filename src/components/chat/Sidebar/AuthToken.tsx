@@ -59,10 +59,21 @@ const AuthToken = ({
     ? `${'*'.repeat(Math.min(authToken.length, 20))}${authToken.length > 20 ? '...' : ''}`
     : 'NO TOKEN SET'
 
+  const isHeaderSent = !!authToken
+
   return (
     <div className="flex flex-col items-start gap-2">
-      <div className="text-xs font-medium uppercase text-primary">
-        Auth Token
+      <div className="flex items-center gap-2 text-xs font-medium uppercase text-primary">
+        <span>Auth Token</span>
+        <span
+          className={`rounded-full px-2 py-0.5 text-[0.6rem] font-semibold ${
+            isHeaderSent
+              ? 'bg-emerald-500/15 text-emerald-400'
+              : 'bg-amber-500/15 text-amber-400'
+          }`}
+        >
+          {isHeaderSent ? 'HEADER SENT' : 'NO HEADER'}
+        </span>
       </div>
       {isEditing ? (
         <div className="flex w-full items-center gap-1">

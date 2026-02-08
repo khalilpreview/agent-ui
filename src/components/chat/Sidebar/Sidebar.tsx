@@ -5,7 +5,7 @@ import { EntitySelector } from '@/components/chat/Sidebar/EntitySelector'
 import useChatActions from '@/hooks/useChatActions'
 import { useStore } from '@/store'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Icon from '@/components/ui/icon'
 import { getProviderIcon } from '@/lib/modelProvider'
 import Sessions from './Sessions'
@@ -15,12 +15,14 @@ import { toast } from 'sonner'
 import { useQueryState } from 'nuqs'
 import { truncateText } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
+import { BRAND } from '@/lib/brand'
+import { getStatusAPI } from '@/api/os'
 
 const ENDPOINT_PLACEHOLDER = 'NO ENDPOINT ADDED'
 const SidebarHeader = () => (
   <div className="flex items-center gap-2">
-    <Icon type="agno" size="xs" />
-    <span className="text-xs font-medium uppercase text-white">Agent UI</span>
+    <Icon type="gnosis" size="xs" />
+    <span className="text-xs font-medium uppercase text-white">{BRAND.name}</span>
   </div>
 )
 
@@ -51,6 +53,120 @@ const ModelDisplay = ({ model }: { model: string }) => (
     {model}
   </div>
 )
+
+const PortsPanel = () => {
+  const handleCopy = async () => {
+    const text = 'UI: 3200-3203\nAPI: 8600-8603\nDocs: /agno/PORTS.md'
+    try {
+      await navigator.clipboard.writeText(text)
+      toast.success('Ports copied to clipboard')
+    } catch {
+      toast.error('Failed to copy ports')
+    }
+  }
+
+  return (
+    <div className="flex w-full flex-col items-start gap-2">
+      <div className="flex w-full items-center justify-between">
+        <div className="text-xs font-medium uppercase text-primary">
+          Ports Registry
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleCopy}
+          className="h-6 w-6 hover:cursor-pointer hover:bg-transparent"
+          title="Copy ports"
+        >
+          <Icon type="download" size="xs" />
+        </Button>
+      </div>
+      <div className="w-full rounded-xl border border-primary/15 bg-accent p-3 text-xs text-muted">
+        <div className="flex items-center justify-between">
+          <span className="uppercase">UI</span>
+          <span>3200-3203</span>
+        </div>
+        <div className="mt-1 flex items-center justify-between">
+          <span className="uppercase">API</span>
+          <span>8600-8603</span>
+        </div>
+        <div className="mt-2 text-[0.65rem] text-muted/70">
+          See /agno/PORTS.md for details.
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const AgentStatusRadar = () => {
+  const authToken = useStore((state) => state.authToken)
+  const [statusMap, setStatusMap] = useState<Record<string, number | null>>({
+    gnosis: null,
+    architect: null,
+    browser: null,
+    phantom: null
+  })
+
+  const targets = [
+    { key: 'gnosis', label: 'Gnosis', endpoint: 'http://localhost:8600' },
+    { key: 'architect', label: 'Architect', endpoint: 'http://localhost:8601' },
+    { key: 'browser', label: 'Browser', endpoint: 'http://localhost:8602' },
+    { key: 'phantom', label: 'Phantom', endpoint: 'http://localhost:8603' }
+  ]
+
+  const pollStatuses = useCallback(async () => {
+    const results = await Promise.all(
+      targets.map(async (target) => {
+        try {
+          const status = await getStatusAPI(target.endpoint, authToken)
+          return [target.key, status] as const
+        } catch {
+          return [target.key, 0] as const
+        }
+      })
+    )
+    setStatusMap((prev) => ({
+      ...prev,
+      ...Object.fromEntries(results)
+    }))
+  }, [authToken])
+
+  useEffect(() => {
+    pollStatuses()
+    const timer = setInterval(pollStatuses, 15000)
+    return () => clearInterval(timer)
+  }, [pollStatuses])
+
+  const getDotClass = (status: number | null) => {
+    if (status === null) {
+      return 'bg-slate-500/70 animate-pulse'
+    }
+    if (status >= 200 && status < 300) {
+      return 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]'
+    }
+    return 'bg-rose-400 shadow-[0_0_10px_rgba(248,113,113,0.6)]'
+  }
+
+  return (
+    <div className="flex w-full flex-col items-start gap-2">
+      <div className="text-xs font-medium uppercase text-primary">
+        Agent Status
+      </div>
+      <div className="w-full rounded-xl border border-primary/15 bg-accent p-3 text-xs text-muted">
+        <div className="grid grid-cols-2 gap-2">
+          {targets.map((target) => (
+            <div key={target.key} className="flex items-center gap-2">
+              <span className={`h-2 w-2 rounded-full ${getDotClass(statusMap[target.key])}`} />
+              <span className="text-[0.7rem] uppercase tracking-[0.15em]">
+                {target.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const Endpoint = () => {
   const {
@@ -236,7 +352,7 @@ const Sidebar = ({
 
   return (
     <motion.aside
-      className="relative flex h-screen shrink-0 grow-0 flex-col overflow-hidden px-2 py-3 font-dmmono"
+      className="relative flex h-screen shrink-0 grow-0 flex-col overflow-hidden border-r border-white/5 bg-[#050505]/70 px-2 py-3 font-dmmono backdrop-blur"
       initial={{ width: '16rem' }}
       animate={{ width: isCollapsed ? '2.5rem' : '16rem' }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
@@ -272,6 +388,8 @@ const Sidebar = ({
           <>
             <Endpoint />
             <AuthToken hasEnvToken={hasEnvToken} envToken={envToken} />
+            <PortsPanel />
+            <AgentStatusRadar />
             {isEndpointActive && (
               <>
                 <motion.div

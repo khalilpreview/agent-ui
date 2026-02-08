@@ -63,6 +63,8 @@ pnpm dev
 
 Agent UI connects directly to your AgentOS instance, allowing you to interact with your agents through a modern chat interface.
 
+ZYNIQ Agno ports registry: see `../PORTS.md` for the current UI/API port map.
+
 > **Prerequisites**: You need a running AgentOS instance before you can connect Agent UI to it. If you haven't created one yet, check out our [Creating Your First OS](https://docs.agno.com/agent-os/creating-your-first-os) guide.
 
 ## Step-by-Step Connection Process

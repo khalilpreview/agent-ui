@@ -8,6 +8,9 @@ import {
   type ChatMessage
 } from '@/types/os'
 
+const DEFAULT_ENDPOINT =
+  process.env.NEXT_PUBLIC_DEFAULT_ENDPOINT || 'http://localhost:7777'
+
 interface Store {
   hydrated: boolean
   setHydrated: () => void
@@ -81,7 +84,7 @@ export const useStore = create<Store>()(
             typeof messages === 'function' ? messages(state.messages) : messages
         })),
       chatInputRef: { current: null },
-      selectedEndpoint: 'http://localhost:7777',
+      selectedEndpoint: DEFAULT_ENDPOINT,
       setSelectedEndpoint: (selectedEndpoint) =>
         set(() => ({ selectedEndpoint })),
       authToken: '',
